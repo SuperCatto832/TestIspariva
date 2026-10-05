@@ -483,6 +483,89 @@
             font-size: 0.85rem;
         }
 
+        /* ==========================================================================
+           SEKSI DAFTAR ARTIKEL (Gaya Kartu Seperti Gambar Pilihan)
+           ========================================================================== */
+        .articles-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .articles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .article-card {
+            background: var(--white);
+            border: 1px solid #E2E8F0;
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s ease;
+        }
+
+        .article-card:hover {
+            border-color: var(--blue-medium);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(13, 71, 161, 0.08);
+        }
+
+        .article-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .article-num {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--blue-medium);
+            font-family: 'Montserrat', sans-serif;
+            min-width: 35px;
+        }
+
+        .article-info h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--blue-dark);
+            margin-bottom: 4px;
+            transition: color 0.2s;
+        }
+
+        .article-card:hover .article-info h4 {
+            color: var(--blue-medium);
+        }
+
+        .article-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .article-arrow {
+            width: 32px;
+            height: 32px;
+            background: #F1F5F9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--blue-medium);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .article-card:hover .article-arrow {
+            background: var(--blue-medium);
+            color: var(--white);
+        }
+
         /* CTA Banner */
         .together-banner {
             background: linear-gradient(135deg, var(--blue-dark), var(--blue-medium));
@@ -496,6 +579,7 @@
             box-shadow: 0 15px 35px rgba(13, 71, 161, 0.25);
             position: relative;
             overflow: hidden;
+            margin-top: 60px;
         }
 
         .together-content h3 {
@@ -721,7 +805,8 @@
                 <li><a href="#tim" class="nav-link">Tim Perancang</a></li>
             </ul>
 
-            <a href="https://medium.com" target="_blank" class="btn-primary">
+            <!-- Tombol Mengarahkan Langsung ke Seksi Artikel -->
+            <a href="#artikel" class="btn-primary">
                 <i class="fa-solid fa-book-open"></i> Baca Artikel
             </a>
         </div>
@@ -948,6 +1033,81 @@
                         <h4>Relevan</h4>
                         <p>Menghadirkan konten kesehatan yang sesuai dengan kebutuhan dan kehidupan generasi masa kini.</p>
                     </div>
+                </div>
+            </div>
+
+            <!-- ==========================================================================
+               SEKSI 5 ARTIKEL PILIHAN (Sesuai Permintaan)
+               ========================================================================== -->
+            <div class="articles-section" id="artikel">
+                <div class="section-header-center">
+                    <span class="section-tag">Publikasi & Tulisan</span>
+                    <h2 class="section-title">Artikel Pilihan ISPARIVA</h2>
+                    <p class="section-subtitle">
+                        Baca kumpulan artikel dan ulasan seputar kesehatan pernapasan yang disusun oleh tim perancang.
+                    </p>
+                </div>
+
+                <div class="articles-list">
+                    <!-- Artikel 1 -->
+                    <a href="https://www.kompasiana.com/refalina9107/6a959a35c925c41ec91c9dba/napasku-ketika-udara-yang-kita-hirup-bisa-mengganggu-pernapasan#goog_rewarded" target="_blank" class="article-card">
+                        <div class="article-left">
+                            <span class="article-num">01</span>
+                            <div class="article-info">
+                                <h4>Napasku Ketika Udara yang Kita Hirup Bisa Mengganggu Pernapasan</h4>
+                                <div class="article-meta">Oleh: Refalina Muhajidah Jaelani &middot; Kompasiana</div>
+                            </div>
+                        </div>
+                        <div class="article-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </a>
+
+                    <!-- Artikel 2 -->
+                    <a href="https://www.kompasiana.com/refalina9107/6a93a5edc925c465ea0f6fc5/cuma-batuk-dan-pilek-kenali-ispa-sebelum-terlambat#goog_rewarded" target="_blank" class="article-card">
+                        <div class="article-left">
+                            <span class="article-num">02</span>
+                            <div class="article-info">
+                                <h4>Cuma Batuk dan Pilek? Kenali ISPA Sebelum Terlambat</h4>
+                                <div class="article-meta">Oleh: Refalina Muhajidah Jaelani &middot; Kompasiana</div>
+                            </div>
+                        </div>
+                        <div class="article-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </a>
+
+                    <!-- Artikel 3 -->
+                    <a href="https://muhamadriko.substack.com/p/napas-sehat-dimulai-dari-kebiasaan-128" target="_blank" class="article-card">
+                        <div class="article-left">
+                            <span class="article-num">03</span>
+                            <div class="article-info">
+                                <h4>Napas Sehat Dimulai dari Kebiasaan</h4>
+                                <div class="article-meta">Oleh: Muhamad Riko Adzrik Fata &middot; Substack</div>
+                            </div>
+                        </div>
+                        <div class="article-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </a>
+
+                    <!-- Artikel 4 -->
+                    <a href="https://medium.com/@ssyauqiyah14/tiap-hari-hirup-udara-tapi-udah-tahu-belum-apa-yang-masuk-ke-paru-paru-008df7e11b57" target="_blank" class="article-card">
+                        <div class="article-left">
+                            <span class="article-num">04</span>
+                            <div class="article-info">
+                                <h4>Tiap Hari Hirup Udara, tapi Udah Tahu Belum Apa yang Masuk ke Paru-Paru?</h4>
+                                <div class="article-meta">Oleh: Syifa Syauqiyah Sirojudin &middot; Medium</div>
+                            </div>
+                        </div>
+                        <div class="article-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </a>
+
+                    <!-- Artikel 5 -->
+                    <a href="https://substack.com/@ahsania/note/c-324283430?utm_source=notes-share-action&r=8zjv13" target="_blank" class="article-card">
+                        <div class="article-left">
+                            <span class="article-num">05</span>
+                            <div class="article-info">
+                                <h4>Catatan Singkat Kesehatan Pernapasan & Pencegahan ISPA</h4>
+                                <div class="article-meta">Oleh: Ahsania Nadya Putri &middot; Substack Note</div>
+                            </div>
+                        </div>
+                        <div class="article-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </a>
                 </div>
             </div>
 
