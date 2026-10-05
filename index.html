@@ -1249,6 +1249,128 @@
         </div>
     </footer>
 
+    <!-- ==========================================================================
+       FLOATING MUSIC PLAYER COMPONENT
+       ========================================================================== -->
+    <div class="floating-music-player" id="musicPlayer">
+        <!-- Elemen Audio (Ganti 'audio/background-music.mp3' dengan path file musik kamu) -->
+        <audio id="bgAudio" loop>
+            <source src="audio/background-music.mp3" type="audio/mpeg">
+            Browser Anda tidak mendukung elemen audio.
+        </audio>
+
+        <!-- Tombol Play / Pause -->
+        <button class="music-btn" id="playPauseBtn" title="Play / Pause Musik">
+            <i class="fa-solid fa-play" id="playPauseIcon"></i>
+        </button>
+
+        <div class="music-info">
+            <span class="music-title">ISPARIVA BGM</span>
+            <span id="statusText">Ketuk untuk Putar</span>
+        </div>
+
+        <!-- Tombol Mute / Unmute -->
+        <button class="music-btn" id="muteBtn" title="Mute / Unmute" style="width: 32px; height: 32px; background: var(--bg-light); color: var(--blue-dark);">
+            <i class="fa-solid fa-volume-high" id="muteIcon"></i>
+        </button>
+
+        <!-- Slider Volume -->
+        <input type="range" min="0" max="1" step="0.05" value="0.5" class="volume-slider" id="volumeSlider" title="Pengaturan Volume">
+    </div>
+
+   <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const audio = document.getElementById("bgAudio");
+            const playPauseBtn = document.getElementById("playPauseBtn");
+            const playPauseIcon = document.getElementById("playPauseIcon");
+            const statusText = document.getElementById("statusText");
+            const muteBtn = document.getElementById("muteBtn");
+            const muteIcon = document.getElementById("muteIcon");
+            const volumeSlider = document.getElementById("volumeSlider");
+
+            let fadeInterval = null;
+
+            // Set volume awal sesuai slider
+            audio.volume = volumeSlider.value;
+
+            // Fungsi untuk melakukan Fade In / Fade Out
+            function fadeAudio(targetVolume, duration, callback) {
+                clearInterval(fadeInterval);
+                let stepTime = 50; // Interval waktu per langkah (ms)
+                let steps = duration / stepTime;
+                let volumeStep = (targetVolume - audio.volume) / steps;
+
+                fadeInterval = setInterval(() => {
+                    let newVol = audio.volume + volumeStep;
+                    if ((volumeStep > 0 && newVol >= targetVolume) || (volumeStep < 0 && newVol <= targetVolume)) {
+                        audio.volume = targetVolume;
+                        clearInterval(fadeInterval);
+                        if (callback) callback();
+                    } else {
+                        audio.volume = Math.max(0, Math.min(1, newVol));
+                    }
+                }, stepTime);
+            }
+
+            // Fungsi Play / Pause dengan efek Fade
+            playPauseBtn.addEventListener("click", function() {
+                if (audio.paused) {
+                    // Nyalakan musik dengan Fade In (durasi 800ms)
+                    audio.volume = 0; // Mulai dari 0
+                    audio.play().then(() => {
+                        playPauseIcon.classList.remove("fa-play");
+                        playPauseIcon.classList.add("fa-pause");
+                        statusText.textContent = "Memutar Musik";
+                        
+                        // Naikkan volume secara perlahan ke nilai slider
+                        fadeAudio(parseFloat(volumeSlider.value), 800);
+                    }).catch(error => {
+                        console.log("Autoplay dicegah oleh browser:", error);
+                    });
+                } else {
+                    // Matikan musik dengan Fade Out (durasi 800ms) lalu pause
+                    statusText.textContent = "Mematikan...";
+                    fadeAudio(0, 800, function() {
+                        audio.pause();
+                        playPauseIcon.classList.remove("fa-pause");
+                        playPauseIcon.classList.add("fa-play");
+                        statusText.textContent = "Musik Dijeda";
+                        // Kembalikan volume ke posisi slider semula setelah dipause
+                        audio.volume = volumeSlider.value;
+                    });
+                }
+            });
+
+            // Fungsi Mute / Unmute
+            muteBtn.addEventListener("click", function() {
+                if (audio.muted) {
+                    audio.muted = false;
+                    muteIcon.classList.remove("fa-volume-xmark");
+                    muteIcon.classList.add("fa-volume-high");
+                } else {
+                    audio.muted = true;
+                    muteIcon.classList.remove("fa-volume-high");
+                    muteIcon.classList.add("fa-volume-xmark");
+                }
+            });
+
+            // Pengaturan Volume lewat Slider
+            volumeSlider.addEventListener("input", function() {
+                // Jika sedang tidak proses fade, ubah volume langsung
+                if (!fadeInterval) {
+                    audio.volume = volumeSlider.value;
+                }
+                if (audio.volume == 0) {
+                    muteIcon.classList.remove("fa-volume-high");
+                    muteIcon.classList.add("fa-volume-xmark");
+                } else {
+                    muteIcon.classList.remove("fa-volume-xmark");
+                    muteIcon.classList.add("fa-volume-high");
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>
 
