@@ -1355,15 +1355,15 @@
     <!-- ==========================================================================
        FLOATING MUSIC PLAYER COMPONENT (BULAT DENGAN INDIKATOR WARNA)
        ========================================================================== -->
-    <!-- Elemen Audio -->
+ <!-- FLOATING MUSIC PLAYER -->
 <div class="floating-music-container" id="musicContainer">
-    <audio id="bgAudio" loop>
-        <source src="Audio/background-music.mp3" type="audio/mpeg">
+    <audio id="bgAudio" loop preload="auto">
+        <source src="Audio/bg-music.mp3" type="audio/mpeg">
+        Browser Anda tidak Mendukung Pemutar Audio.
     </audio>
 
-    <!-- Tombol Musik Bulat -->
     <button class="music-circle-btn is-paused" id="playPauseBtn" title="Putar / Jeda Musik">
-        <i class="fa-solid fa-volume-xmark" id="playPauseIcon"></i>
+        <i class="fa-solid fa-music" id="playPauseIcon"></i>
     </button>
 
     <div class="music-controls-panel">
@@ -1374,8 +1374,8 @@
         <input type="range" min="0" max="1" step="0.05" value="0.5" class="music-volume-slider" id="volumeSlider" title="Pengaturan Volume">
     </div>
 </div>
-    
-   <script>
+
+<script>
     document.addEventListener("DOMContentLoaded", function() {
         const audio = document.getElementById("bgAudio");
         const playPauseBtn = document.getElementById("playPauseBtn");
@@ -1383,47 +1383,66 @@
         const statusText = document.getElementById("statusText");
         const volumeSlider = document.getElementById("volumeSlider");
 
-        let isInitialized = false;
+        let fadeInterval = null;
         audio.volume = volumeSlider.value;
 
-        function playMusic() {
-            audio.play().then(() => {
-                playPauseBtn.classList.remove("is-paused");
-                playPauseBtn.classList.add("is-playing");
-                playPauseIcon.classList.remove("fa-volume-xmark");
-                playPauseIcon.classList.add("fa-volume-high"); // Ikon speaker aktif biru
-                statusText.textContent = "Musik Menyala";
-                isInitialized = true;
-            }).catch(error => {
-                console.log("Autoplay dicegah oleh browser:", error);
-            });
+        // Cek jika file audio gagal dimuat oleh browser
+        audio.onerror = function() {
+            statusText.textContent = "File audio tidak ditemukan!";
+            console.error("Gagal memuat file audio. Periksa kembali nama folder dan file mp3 Anda.");
+        };
+
+        function fadeAudio(targetVolume, duration, callback) {
+            clearInterval(fadeInterval);
+            let stepTime = 50; 
+            let steps = duration / stepTime;
+            let volumeStep = (targetVolume - audio.volume) / steps;
+
+            fadeInterval = setInterval(() => {
+                let newVol = audio.volume + volumeStep;
+                if ((volumeStep > 0 && newVol >= targetVolume) || (volumeStep < 0 && newVol <= targetVolume)) {
+                    audio.volume = targetVolume;
+                    clearInterval(fadeInterval);
+                    if (callback) callback();
+                } else {
+                    audio.volume = Math.max(0, Math.min(1, newVol));
+                }
+            }, stepTime);
         }
 
-        // Auto-play / nyalakan otomatis saat pengguna pertama kali klik di mana saja di halaman web
-        document.body.addEventListener("click", function initAutoplay() {
-            if (!isInitialized) {
-                playMusic();
-            }
-        }, { once: true });
-
-        // Tombol Play / Pause manual
-        playPauseBtn.addEventListener("click", function(e) {
-            e.stopPropagation(); // Mencegah bentrok dengan event click body
+        playPauseBtn.addEventListener("click", function() {
             if (audio.paused) {
-                playMusic();
+                audio.volume = 0;
+                audio.play().then(() => {
+                    playPauseBtn.classList.remove("is-paused");
+                    playPauseBtn.classList.add("is-playing");
+                    playPauseIcon.classList.remove("fa-music");
+                    playPauseIcon.classList.add("fa-volume-high");
+                    statusText.textContent = "Musik Menyala";
+
+                    fadeAudio(parseFloat(volumeSlider.value), 800);
+                }).catch(error => {
+                    statusText.textContent = "Gagal memutar (Blokir Browser)";
+                    console.log("Pemutaran dicegah oleh browser:", error);
+                });
             } else {
-                audio.pause();
-                playPauseBtn.classList.remove("is-playing");
-                playPauseBtn.classList.add("is-paused");
-                playPauseIcon.classList.remove("fa-volume-high");
-                playPauseIcon.classList.add("fa-volume-xmark"); // Ikon speaker mati merah
-                statusText.textContent = "Musik Dimatikan";
+                statusText.textContent = "Mematikan...";
+                fadeAudio(0, 800, function() {
+                    audio.pause();
+                    playPauseBtn.classList.remove("is-playing");
+                    playPauseBtn.classList.add("is-paused");
+                    playPauseIcon.classList.remove("fa-volume-high");
+                    playPauseIcon.classList.add("fa-music");
+                    statusText.textContent = "Musik Dimatikan";
+                    audio.volume = volumeSlider.value;
+                });
             }
         });
 
-        // Pengaturan Volume lewat Slider
         volumeSlider.addEventListener("input", function() {
-            audio.volume = volumeSlider.value;
+            if (!fadeInterval) {
+                audio.volume = volumeSlider.value;
+            }
         });
     });
 </script>
