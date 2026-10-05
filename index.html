@@ -1383,34 +1383,112 @@
         const statusText = document.getElementById("statusText");
         const volumeSlider = document.getElementById("volumeSlider");
 
-        audio.volume = volumeSlider.value;
+        let targetVolume = parseFloat(volumeSlider.value);
+        audio.volume = 0; // Mulai dari 0 untuk efek fade
+        let isUserInteracted = false;
+        let fadeInterval = null;
 
-        playPauseBtn.addEventListener("click", async function() {
+        // Fungsi untuk efek Fade In
+        function fadeIn(duration = 1000) {
+            clearInterval(fadeInterval);
+            audio.play().catch(() => {});
+            let stepTime = 50; // Update setiap 50ms
+            let steps = duration / stepTime;
+            let volumeStep = targetVolume / steps;
+
+            fadeInterval = setInterval(() => {
+                if (audio.volume < targetVolume - volumeStep) {
+                    audio.volume = Math.min(targetVolume, audio.volume + volumeStep);
+                } else {
+                    audio.volume = targetVolume;
+                    clearInterval(fadeInterval);
+                }
+            }, stepTime);
+        }
+
+        // Fungsi untuk efek Fade Out
+        function fadeOut(duration = 800, callback) {
+            clearInterval(fadeInterval);
+            let stepTime = 50;
+            let steps = duration / stepTime;
+            let volumeStep = audio.volume / steps;
+
+            fadeInterval = setInterval(() => {
+                if (audio.volume > volumeStep) {
+                    audio.volume -= volumeStep;
+                } else {
+                    audio.volume = 0;
+                    audio.pause();
+                    clearInterval(fadeInterval);
+                    if (callback) callback();
+                }
+            }, stepTime);
+        }
+
+        // Fungsi untuk menyalakan musik pertama kali
+        async function startMusic() {
+            if (isUserInteracted) return;
             try {
-                if (audio.paused) {
+                statusText.textContent = "Memuat...";
+                isUserInteracted = true;
+                fadeIn(1200); // Durasi fade in 1.2 detik
+
+                playPauseBtn.classList.remove("is-paused");
+                playPauseBtn.classList.add("is-playing");
+                playPauseIcon.classList.remove("fa-music");
+                playPauseIcon.classList.add("fa-volume-high");
+                statusText.textContent = "Musik Menyala";
+
+                document.removeEventListener("click", triggerFirstInteraction);
+            } catch (error) {
+                console.log("Menunggu interaksi berikutnya...");
+            }
+        }
+
+        // Listener global untuk interaksi pertama di mana saja
+        function triggerFirstInteraction(e) {
+            if (e.target.closest('#volumeSlider')) return;
+            startMusic();
+        }
+
+        document.addEventListener("click", triggerFirstInteraction);
+
+        // Tombol musik untuk on/off dengan efek fade
+        playPauseBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            try {
+                if (audio.paused || audio.volume === 0) {
                     statusText.textContent = "Memuat...";
-                    await audio.play();
+                    isUserInteracted = true;
+                    fadeIn(1000);
+
                     playPauseBtn.classList.remove("is-paused");
                     playPauseBtn.classList.add("is-playing");
                     playPauseIcon.classList.remove("fa-music");
                     playPauseIcon.classList.add("fa-volume-high");
                     statusText.textContent = "Musik Menyala";
                 } else {
-                    audio.pause();
-                    playPauseBtn.classList.remove("is-playing");
-                    playPauseBtn.classList.add("is-paused");
-                    playPauseIcon.classList.remove("fa-volume-high");
-                    playPauseIcon.classList.add("fa-music");
-                    statusText.textContent = "Musik Dimatikan";
+                    statusText.textContent = "Mematikan...";
+                    fadeOut(800, () => {
+                        playPauseBtn.classList.remove("is-playing");
+                        playPauseBtn.classList.add("is-paused");
+                        playPauseIcon.classList.remove("fa-volume-high");
+                        playPauseIcon.classList.add("fa-music");
+                        statusText.textContent = "Musik Dimatikan";
+                    });
                 }
             } catch (error) {
-                console.error("Gagal memutar audio:", error);
+                console.error("Gagal mengatur audio:", error);
                 statusText.textContent = "Gagal memutar audio";
             }
         });
 
+        // Kontrol slider volume
         volumeSlider.addEventListener("input", function() {
-            audio.volume = volumeSlider.value;
+            targetVolume = parseFloat(volumeSlider.value);
+            if (!audio.paused) {
+                audio.volume = targetVolume;
+            }
         });
     });
 </script>
