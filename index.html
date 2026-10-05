@@ -792,6 +792,109 @@
             .hero-title { font-size: 2.1rem; }
             .nav-menu { display: none; }
         }
+        /* ==========================================================================
+           FLOATING MUSIC PLAYER (Bulat, Indikator Warna Biru/Merah)
+           ========================================================================== */
+        .floating-music-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            padding: 8px 14px 8px 8px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(13, 71, 161, 0.15);
+            border: 1px solid rgba(25, 118, 210, 0.15);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        /* Tombol Utama Bulat */
+        .music-circle-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 3px solid #CBD5E1; /* Default/Off: Abu-abu */
+            color: #64748B;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Status Ketika ON (Menyala) -> Border & Ikon Jadi Biru */
+        .music-circle-btn.is-playing {
+            border-color: var(--blue-medium);
+            color: var(--blue-medium);
+            background: rgba(25, 118, 210, 0.05);
+            box-shadow: 0 0 15px rgba(25, 118, 210, 0.3);
+            animation: pulse-blue 2s infinite;
+        }
+
+        /* Status Ketika OFF / Pause -> Border & Ikon Jadi Merah */
+        .music-circle-btn.is-paused {
+            border-color: #EF4444;
+            color: #EF4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(25, 118, 210, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(25, 118, 210, 0); }
+        }
+
+        .music-controls-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .music-text-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .music-title-text {
+            font-weight: 700;
+            color: var(--blue-dark);
+            font-size: 0.8rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .music-volume-slider {
+            width: 70px;
+            accent-color: var(--blue-medium);
+            cursor: pointer;
+        }
+
+        @media (max-width: 576px) {
+            .floating-music-container {
+                bottom: 16px;
+                right: 16px;
+                padding: 6px 10px 6px 6px;
+            }
+            .music-circle-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 0.95rem;
+            }
+            .music-volume-slider {
+                width: 50px;
+            }
+            .music-text-info {
+                display: none; /* Sembunyikan teks di HP agar lebih ringkas, tinggal tombol & slider */
+            }
+        }
     </style>
 </head>
 <body>
@@ -1250,32 +1353,28 @@
     </footer>
 
     <!-- ==========================================================================
-       FLOATING MUSIC PLAYER COMPONENT
+       FLOATING MUSIC PLAYER COMPONENT (BULAT DENGAN INDIKATOR WARNA)
        ========================================================================== -->
-    <div class="floating-music-player" id="musicPlayer">
-        <!-- Elemen Audio (Ganti 'audio/background-music.mp3' dengan path file musik kamu) -->
+    <div class="floating-music-container" id="musicContainer">
+        <!-- Elemen Audio (Sesuaikan path file musik kamu) -->
         <audio id="bgAudio" loop>
             <source src="audio/background-music.mp3" type="audio/mpeg">
-            Browser Anda tidak mendukung elemen audio.
         </audio>
 
-        <!-- Tombol Play / Pause -->
-        <button class="music-btn" id="playPauseBtn" title="Play / Pause Musik">
-            <i class="fa-solid fa-play" id="playPauseIcon"></i>
+        <!-- Tombol Musik Bulat (Default abu-abu / off) -->
+        <button class="music-circle-btn is-paused" id="playPauseBtn" title="Putar / Jeda Musik">
+            <i class="fa-solid fa-music" id="playPauseIcon"></i>
         </button>
 
-        <div class="music-info">
-            <span class="music-title">ISPARIVA BGM</span>
-            <span id="statusText">Ketuk untuk Putar</span>
+        <div class="music-controls-panel">
+            <div class="music-text-info">
+                <span class="music-title-text">ISPARIVA BGM</span>
+                <span id="statusText">Ketuk untuk Putar</span>
+            </div>
+
+            <!-- Slider Volume -->
+            <input type="range" min="0" max="1" step="0.05" value="0.5" class="music-volume-slider" id="volumeSlider" title="Pengaturan Volume">
         </div>
-
-        <!-- Tombol Mute / Unmute -->
-        <button class="music-btn" id="muteBtn" title="Mute / Unmute" style="width: 32px; height: 32px; background: var(--bg-light); color: var(--blue-dark);">
-            <i class="fa-solid fa-volume-high" id="muteIcon"></i>
-        </button>
-
-        <!-- Slider Volume -->
-        <input type="range" min="0" max="1" step="0.05" value="0.5" class="volume-slider" id="volumeSlider" title="Pengaturan Volume">
     </div>
 
    <script>
@@ -1284,19 +1383,15 @@
             const playPauseBtn = document.getElementById("playPauseBtn");
             const playPauseIcon = document.getElementById("playPauseIcon");
             const statusText = document.getElementById("statusText");
-            const muteBtn = document.getElementById("muteBtn");
-            const muteIcon = document.getElementById("muteIcon");
             const volumeSlider = document.getElementById("volumeSlider");
 
             let fadeInterval = null;
-
-            // Set volume awal sesuai slider
             audio.volume = volumeSlider.value;
 
-            // Fungsi untuk melakukan Fade In / Fade Out
+            // Fungsi Fade In / Fade Out agar suara tidak langsung terpotong
             function fadeAudio(targetVolume, duration, callback) {
                 clearInterval(fadeInterval);
-                let stepTime = 50; // Interval waktu per langkah (ms)
+                let stepTime = 50; 
                 let steps = duration / stepTime;
                 let volumeStep = (targetVolume - audio.volume) / steps;
 
@@ -1312,60 +1407,41 @@
                 }, stepTime);
             }
 
-            // Fungsi Play / Pause dengan efek Fade
+            // Tombol Play / Pause diklik
             playPauseBtn.addEventListener("click", function() {
                 if (audio.paused) {
-                    // Nyalakan musik dengan Fade In (durasi 800ms)
-                    audio.volume = 0; // Mulai dari 0
+                    // KONDISI ON (MENYALA) -> Border & Ikon Berubah Jadi BIRU
+                    audio.volume = 0;
                     audio.play().then(() => {
-                        playPauseIcon.classList.remove("fa-play");
-                        playPauseIcon.classList.add("fa-pause");
-                        statusText.textContent = "Memutar Musik";
-                        
-                        // Naikkan volume secara perlahan ke nilai slider
+                        playPauseBtn.classList.remove("is-paused");
+                        playPauseBtn.classList.add("is-playing");
+                        playPauseIcon.classList.remove("fa-music");
+                        playPauseIcon.classList.add("fa-volume-high"); // Ganti ikon jadi speaker aktif
+                        statusText.textContent = "Musik Menyala";
+
                         fadeAudio(parseFloat(volumeSlider.value), 800);
                     }).catch(error => {
-                        console.log("Autoplay dicegah oleh browser:", error);
+                        console.log("Autoplay dicegah browser:", error);
                     });
                 } else {
-                    // Matikan musik dengan Fade Out (durasi 800ms) lalu pause
+                    // KONDISI OFF (MATI / PAUSE) -> Border & Ikon Berubah Jadi MERAH
                     statusText.textContent = "Mematikan...";
                     fadeAudio(0, 800, function() {
                         audio.pause();
-                        playPauseIcon.classList.remove("fa-pause");
-                        playPauseIcon.classList.add("fa-play");
-                        statusText.textContent = "Musik Dijeda";
-                        // Kembalikan volume ke posisi slider semula setelah dipause
+                        playPauseBtn.classList.remove("is-playing");
+                        playPauseBtn.classList.add("is-paused");
+                        playPauseIcon.classList.remove("fa-volume-high");
+                        playPauseIcon.classList.add("fa-music"); // Kembalikan ke ikon musik
+                        statusText.textContent = "Musik Dimatikan";
                         audio.volume = volumeSlider.value;
                     });
                 }
             });
 
-            // Fungsi Mute / Unmute
-            muteBtn.addEventListener("click", function() {
-                if (audio.muted) {
-                    audio.muted = false;
-                    muteIcon.classList.remove("fa-volume-xmark");
-                    muteIcon.classList.add("fa-volume-high");
-                } else {
-                    audio.muted = true;
-                    muteIcon.classList.remove("fa-volume-high");
-                    muteIcon.classList.add("fa-volume-xmark");
-                }
-            });
-
             // Pengaturan Volume lewat Slider
             volumeSlider.addEventListener("input", function() {
-                // Jika sedang tidak proses fade, ubah volume langsung
                 if (!fadeInterval) {
                     audio.volume = volumeSlider.value;
-                }
-                if (audio.volume == 0) {
-                    muteIcon.classList.remove("fa-volume-high");
-                    muteIcon.classList.add("fa-volume-xmark");
-                } else {
-                    muteIcon.classList.remove("fa-volume-xmark");
-                    muteIcon.classList.add("fa-volume-high");
                 }
             });
         });
