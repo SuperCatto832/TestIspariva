@@ -1355,13 +1355,12 @@
     <!-- ==========================================================================
        FLOATING MUSIC PLAYER COMPONENT (BULAT DENGAN INDIKATOR WARNA)
        ========================================================================== -->
- <!-- FLOATING MUSIC PLAYER -->
+<!-- FLOATING MUSIC PLAYER -->
 <div class="floating-music-container" id="musicContainer">
     <audio id="bgAudio" loop preload="auto">
-    <!-- Coba link audio publik ini untuk mengetes -->
-    <source src="Audio/bg-music.mp3" type="audio/mpeg">
-    Browser Anda tidak Mendukung Pemutar Audio.
-</audio>
+        <source src="Audio/bg-music.mp3" type="audio/mpeg">
+        Browser Anda tidak Mendukung Pemutar Audio.
+    </audio>
 
     <button class="music-circle-btn is-paused" id="playPauseBtn" title="Putar / Jeda Musik">
         <i class="fa-solid fa-music" id="playPauseIcon"></i>
@@ -1384,66 +1383,34 @@
         const statusText = document.getElementById("statusText");
         const volumeSlider = document.getElementById("volumeSlider");
 
-        let fadeInterval = null;
         audio.volume = volumeSlider.value;
 
-        // Cek jika file audio gagal dimuat oleh browser
-        audio.onerror = function() {
-            statusText.textContent = "File audio tidak ditemukan!";
-            console.error("Gagal memuat file audio. Periksa kembali nama folder dan file mp3 Anda.");
-        };
-
-        function fadeAudio(targetVolume, duration, callback) {
-            clearInterval(fadeInterval);
-            let stepTime = 50; 
-            let steps = duration / stepTime;
-            let volumeStep = (targetVolume - audio.volume) / steps;
-
-            fadeInterval = setInterval(() => {
-                let newVol = audio.volume + volumeStep;
-                if ((volumeStep > 0 && newVol >= targetVolume) || (volumeStep < 0 && newVol <= targetVolume)) {
-                    audio.volume = targetVolume;
-                    clearInterval(fadeInterval);
-                    if (callback) callback();
-                } else {
-                    audio.volume = Math.max(0, Math.min(1, newVol));
-                }
-            }, stepTime);
-        }
-
-        playPauseBtn.addEventListener("click", function() {
-            if (audio.paused) {
-                audio.volume = 0;
-                audio.play().then(() => {
+        playPauseBtn.addEventListener("click", async function() {
+            try {
+                if (audio.paused) {
+                    statusText.textContent = "Memuat...";
+                    await audio.play();
                     playPauseBtn.classList.remove("is-paused");
                     playPauseBtn.classList.add("is-playing");
                     playPauseIcon.classList.remove("fa-music");
                     playPauseIcon.classList.add("fa-volume-high");
                     statusText.textContent = "Musik Menyala";
-
-                    fadeAudio(parseFloat(volumeSlider.value), 800);
-                }).catch(error => {
-                    statusText.textContent = "Gagal memutar (Blokir Browser)";
-                    console.log("Pemutaran dicegah oleh browser:", error);
-                });
-            } else {
-                statusText.textContent = "Mematikan...";
-                fadeAudio(0, 800, function() {
+                } else {
                     audio.pause();
                     playPauseBtn.classList.remove("is-playing");
                     playPauseBtn.classList.add("is-paused");
                     playPauseIcon.classList.remove("fa-volume-high");
                     playPauseIcon.classList.add("fa-music");
                     statusText.textContent = "Musik Dimatikan";
-                    audio.volume = volumeSlider.value;
-                });
+                }
+            } catch (error) {
+                console.error("Gagal memutar audio:", error);
+                statusText.textContent = "Gagal memutar audio";
             }
         });
 
         volumeSlider.addEventListener("input", function() {
-            if (!fadeInterval) {
-                audio.volume = volumeSlider.value;
-            }
+            audio.volume = volumeSlider.value;
         });
     });
 </script>
